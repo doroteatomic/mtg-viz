@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Gathering Room — MTG Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ── Landing Splash ──────────────────────────────────────────── -->
+  <div id="landing" class="landing">
+
+    <div class="landing-scene">
+
+      <!-- Left: halftone computer image (no frame) -->
+      <div class="landing-art">
+
+        <img src="img/computer.png" class="computer-img" alt="retro halftone computer">
+
+        <!-- Pixel cursor overlapping the image -->
+        <div class="pixel-cursor-wrap" aria-hidden="true">
+          <svg class="pixel-cursor-svg" viewBox="0 0 13 17" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+            <path d="M0,0 L0,13 L3,10 L5,15 L7,14 L5,9 L9,9 Z" fill="black"/>
+            <path d="M1,1 L1,11 L3,9 L5,14 L6,13.5 L4,8.5 L8.5,8.5 Z" fill="white"/>
+            <path d="M1,1 L1,10 L3,8 L5,13 L5.5,12.8 L3.5,7.8 L8,7.8 Z" fill="black"/>
+          </svg>
+        </div>
+
+      </div><!-- /landing-art -->
+
+      <!-- Right: CLICK / HERE CTA -->
+      <button class="landing-cta" id="landing-enter" aria-label="Enter the visualization">
+        <span class="cta-click">CLICK</span>
+        <span class="cta-here">HERE</span>
+      </button>
+
+    </div><!-- /landing-scene -->
+
+    <!-- Bottom-right: retro megaphone image -->
+    <div class="landing-megaphone" aria-hidden="true">
+      <img src="img/megaphone.png" class="megaphone-img" alt="">
+    </div>
+
+  </div><!-- /landing -->
+
+  <header class="main-header">
+    <div class="header-left">
+      <span class="header-type-line">Data Visualisation</span>
+      <h1>The Gathering Room</h1>
+    </div>
+    <div class="header-controls">
+      <div class="filter-group">
+        <span class="filter-label">Filter color:</span>
+        <div id="color-filters"></div>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Compare:</span>
+        <div id="compare-filters"></div>
+        <button id="clear-compare-btn" class="ctrl-btn" style="display:none">&#10005; Clear</button>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Sort:</span>
+        <select id="sort-select" class="ctrl-select">
+          <option value="count">By frequency</option>
+          <option value="color">By color count</option>
+          <option value="alpha">Alphabetical</option>
+        </select>
+      </div>
+      <button id="play-btn" class="ctrl-btn play-btn">&#9654; Play</button>
+    </div>
+  </header>
+
+  <!-- ── Hero: MTG card intro ──────────────────────────────────── -->
+  <section class="hero-section" id="hero-section">
+
+    <!-- Background ornamental lines -->
+    <div class="hero-ornament hero-ornament-tl" aria-hidden="true"></div>
+    <div class="hero-ornament hero-ornament-br" aria-hidden="true"></div>
+
+    <div class="hero-cards">
+      <!-- Magic card back -->
+      <div class="hero-card-slide hero-card-left">
+        <div class="hero-card-tilt hero-tilt-left">
+          <img src="img/magic_back.jpg" class="card-img" alt="Magic card back" draggable="false">
+        </div>
+      </div>
+      <!-- Custom Gathering Room card with text overlay -->
+      <div class="hero-card-slide hero-card-right">
+        <div class="hero-card-tilt hero-tilt-right">
+          <div class="card-frame-wrapper">
+            <img src="img/magic_front.jpg" class="card-img" alt="The Gathering Room card" draggable="false">
+            <div class="card-overlay">
+              <div class="card-name-overlay">The Gathering Room</div>
+              <div class="card-type-overlay">Data Visualisation</div>
+              <div class="card-text-overlay">
+                Magic: The Gathering<br>
+                &ndash; Competitive &amp; Draft Analytics
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-hint" aria-label="Scroll to explore">
+      <span class="scroll-hint-text">SCROLL TO EXPLORE</span>
+      <svg class="scroll-arrow" viewBox="0 0 28 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 2L14 12L26 2" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter"/>
+      </svg>
+    </div>
+
+  </section>
+
+  <main class="dashboard">
+    <!-- Timeline -->
+    <section class="panel panel-timeline" id="panel-timeline">
+      <div class="panel-header">
+        <h2>Meta Evolution</h2>
+        <span class="panel-info" id="meta-label">Loading&hellip;</span>
+      </div>
+      <div class="chart-area" id="timeline-chart"></div>
+      <div class="meta-scrubber" id="meta-dots"></div>
+    </section>
+
+    <!-- Chord -->
+    <section class="panel panel-chord" id="panel-chord">
+      <div class="panel-header">
+        <h2>Color Web</h2>
+        <span class="panel-info">Color co-occurrence in 124k competitive decks</span>
+      </div>
+      <div class="chart-area" id="chord-chart"></div>
+    </section>
+
+    <!-- Scatter -->
+    <section class="panel panel-scatter" id="panel-scatter">
+      <div class="panel-header">
+        <h2>OTJ Draft Compass</h2>
+        <div class="panel-selects">
+          <select id="scatter-x" class="ctrl-select small">
+            <option value="alsa">X: Pick order (ALSA)</option>
+            <option value="gp_pct">X: Play rate (%)</option>
+          </select>
+          <select id="scatter-y" class="ctrl-select small">
+            <option value="gih_wr">Y: GIH Win Rate (%)</option>
+            <option value="iwd">Y: Improvement when drawn</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-area" id="scatter-chart"></div>
+    </section>
+
+    <!-- Top Cards -->
+    <section class="panel panel-topcards" id="panel-topcards">
+      <div class="panel-header">
+        <h2>Top Cards</h2>
+        <div class="panel-toggle" id="topcards-toggle">
+          <button class="toggle-btn active" data-view="competitive">Competitive</button>
+          <button class="toggle-btn" data-view="draft">OTJ Draft</button>
+        </div>
+      </div>
+      <div class="chart-area" id="topcards-chart"></div>
+    </section>
+  </main>
+
+  <div id="tooltip" class="tooltip"></div>
+
+  <script src="js/main.js"></script>
+
+  <script>
+    /* ── Landing page entry ────────────────────────────────────── */
+    (function () {
+      var landing = document.getElementById('landing');
+      var btn     = document.getElementById('landing-enter');
+      if (!landing || !btn) return;
+
+      function enter() {
+        landing.classList.add('exit');
+        landing.addEventListener('transitionend', function () {
+          landing.style.display = 'none';
+        }, { once: true });
+      }
+
+      btn.addEventListener('click', enter);
+
+      // Any key also works
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') enter();
+      }, { once: true });
+    })();
+  </script>
+</body>
+</html>
