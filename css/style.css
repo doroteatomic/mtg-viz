@@ -712,6 +712,8 @@ body::before {
   font-family: 'Fraunces', Georgia, serif;
   font-size: 0.78rem;
   line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
   padding: 8px 12px;
   width: 220px;
   border-radius: 2px;

@@ -212,8 +212,12 @@ function updateTimeline() {
 
   bars = bars.slice(0, 14);
 
-  // When 2 colors selected → filter to identities containing BOTH colors
-  if (state.compareColors.size >= 2) {
+  // Apply color filter from legend selection
+  if (state.compareColors.size === 1) {
+    const c = [...state.compareColors][0];
+    bars = bars.filter(d => d.id.includes(c));
+  } else if (state.compareColors.size >= 2) {
+    // 2 colors → show identities containing BOTH
     const colors = [...state.compareColors];
     bars = bars.filter(d => colors.every(c => d.id.includes(c)));
   }
