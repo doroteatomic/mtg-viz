@@ -72,12 +72,7 @@ function openCardPanel(d) {
   const iwd = d.iwd >= 0 ? `+${d.iwd}pp` : `${d.iwd}pp`;
   const iwdClass = d.iwd >= 0 ? 'good' : 'bad';
   const wrClass  = d.gih_wr >= 55 ? 'good' : d.gih_wr < 50 ? 'bad' : '';
-  cardStats.innerHTML = `
-    <div class="stat-name">${d.name}</div>
-    <div class="stat-row">
-      <span class="stat-label">Rarity</span>
-      <span class="stat-value">${RARITY_LABEL[d.rarity] || d.rarity}</span>
-    </div>
+  const draftStats = d._compMode ? '' : `
     <div class="stat-row">
       <span class="stat-label">GIH Win Rate <span class="stat-hint" data-hint="Win rate in games where you had this card in hand at least once.">?</span></span>
       <span class="stat-value ${wrClass}">${d.gih_wr}%</span>
@@ -93,7 +88,11 @@ function openCardPanel(d) {
     <div class="stat-row">
       <span class="stat-label">Improves win rate by <span class="stat-hint" data-hint="Win rate boost when you draw this card vs. when you don't.">?</span></span>
       <span class="stat-value ${iwdClass}">${iwd}</span>
-    </div>
+    </div>`;
+
+  cardStats.innerHTML = `
+    <div class="stat-name">${d.name}</div>
+    ${draftStats}
   `;
 
   // Fetch card data from Scryfall (image + price)
@@ -705,6 +704,17 @@ function updateTopCards() {
     .on('mouseout', function() {
       d3.select(this).attr('filter', null); hideTip();
     })
+    .on('click', function(evt, d) {
+      evt.stopPropagation();
+      hideTip();
+      if (!isComp) {
+        openCardPanel(d);
+      } else {
+        // Competitive cards only have name — open panel with image + price only
+        openCardPanel({ name: d.name, rarity: '—', gih_wr: null, alsa: null, gp_pct: null, iwd: null, num_seen: 0, _compMode: true });
+      }
+    })
+    .attr('cursor', 'pointer')
     .transition().duration(TRANS).attr('width', d => TC.x(d[valKey]));
 
   // UPDATE
