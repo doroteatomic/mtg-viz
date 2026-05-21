@@ -631,6 +631,49 @@ body::before {
 .card-panel-stats .stat-value.good { color: #7ddc9e; }
 .card-panel-stats .stat-value.bad  { color: #e07070; }
 
+.stat-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-family: sans-serif;
+  cursor: help;
+  position: relative;
+  vertical-align: middle;
+  margin-left: 3px;
+  transition: background 0.15s;
+}
+.stat-hint:hover { background: rgba(245,197,24,0.25); color: var(--accent); }
+
+.stat-hint::after {
+  content: attr(data-hint);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a2650;
+  border: 1px solid rgba(245,197,24,0.4);
+  color: #fff;
+  font-family: 'Goudy Mediaeval', serif;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  padding: 8px 12px;
+  width: 220px;
+  border-radius: 2px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 1300;
+  white-space: normal;
+}
+.stat-hint:hover::after { opacity: 1; }
+
 /* ── Error ────────────────────────────────────────────────────── */
 .error {
   position: fixed;
