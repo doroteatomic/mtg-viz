@@ -1,3 +1,23 @@
+/* ── Goudy Mediaeval ──────────────────────────────────────────── */
+@font-face {
+  font-family: 'Goudy Mediaeval';
+  src: url('../fonts/GoudyMediaeval-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Goudy Mediaeval';
+  src: url('../fonts/GoudyMediaeval-DemiBold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Goudy Mediaeval Alternate';
+  src: url('../fonts/GoudyMedieval-Alternate.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
 /* ── Reset & Base ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -32,7 +52,7 @@ html, body {
   min-height: 100%;
   background: var(--bg);
   color: var(--text);
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Goudy Mediaeval', Georgia, serif;
   font-size: 15px;
   overflow-x: hidden;
 }
@@ -55,7 +75,7 @@ body::before {
 .toggle-btn,
 .play-btn,
 .ctrl-btn {
-  font-family: 'Bodoni Moda', serif;
+  font-family: 'Goudy Mediaeval', serif;
 }
 
 /* ── Scrollbars ───────────────────────────────────────────────── */
@@ -83,7 +103,7 @@ body::before {
 
 .header-type-line {
   display: inline-block;
-  font-family: 'Fraunces', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: 0.6rem;
   font-style: italic;
   color: rgba(245,197,24,0.7);
@@ -95,7 +115,7 @@ body::before {
 }
 
 .header-left h1 {
-  font-family: 'Bodoni Moda', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: 1.45rem;
   font-weight: 700;
   font-style: italic;
@@ -320,7 +340,7 @@ body::before {
 }
 
 .panel-header h2 {
-  font-family: 'Bebas Neue', 'Bodoni Moda', serif;
+  font-family: 'Bebas Neue', 'Goudy Mediaeval', serif;
   font-size: 1.1rem;
   font-weight: 400;
   color: var(--accent);
@@ -406,13 +426,13 @@ body::before {
 
 .axis text {
   fill: var(--text-dim);
-  font-family: 'Fraunces', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: 11px;
 }
 
 .axis-label {
   fill: var(--text-muted);
-  font-family: 'Fraunces', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: 11px;
   font-style: italic;
 }
@@ -444,7 +464,7 @@ body::before {
 
 .val-label {
   fill: rgba(184,204,255,0.8);
-  font-family: 'Fraunces', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: 11px;
   pointer-events: none;
 }
@@ -457,7 +477,7 @@ body::before {
 
 .quadrant-label {
   fill: rgba(106,136,192,0.6);
-  font-family: 'Fraunces', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: 10px;
   font-style: italic;
   pointer-events: none;
@@ -475,7 +495,7 @@ body::before {
   border: 1.5px solid rgba(245,197,24,0.4);
   border-radius: 0;
   padding: 8px 12px;
-  font-family: 'Fraunces', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: 0.88rem;
   color: #ffffff;
   pointer-events: none;
@@ -498,7 +518,7 @@ body::before {
   justify-content: center;
   background: var(--bg);
   color: var(--accent);
-  font-family: 'Bodoni Moda', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: 1rem;
   text-align: center;
   padding: 40px;
@@ -507,7 +527,7 @@ body::before {
 
 .legend-item text {
   fill: var(--text-dim);
-  font-family: 'Fraunces', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: 11px;
 }
 
@@ -612,7 +632,7 @@ body::before {
 }
 
 .cta-click {
-  font-family: 'Bebas Neue', 'Bodoni Moda', serif;
+  font-family: 'Bebas Neue', 'Goudy Mediaeval', serif;
   font-size: clamp(60px, 9.5vw, 112px);
   font-weight: 400;
   color: #ffffff;
@@ -801,7 +821,7 @@ body::before {
   top: 9%;
   left: 11%;
   right: 11%;
-  font-family: 'Bodoni Moda', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: clamp(9px, 1.3vw, 14px);
   font-weight: 700;
   color: #111;
@@ -817,7 +837,7 @@ body::before {
   top: 59%;
   left: 11%;
   right: 11%;
-  font-family: 'Fraunces', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: clamp(6px, 0.8vw, 10px);
   font-style: italic;
   color: #111;
@@ -830,7 +850,7 @@ body::before {
   top: 64.5%;
   left: 11%;
   right: 11%;
-  font-family: 'Fraunces', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: clamp(6px, 0.8vw, 10px);
   font-style: italic;
   color: #111;
