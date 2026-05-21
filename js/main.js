@@ -79,19 +79,19 @@ function openCardPanel(d) {
       <span class="stat-value">${RARITY_LABEL[d.rarity] || d.rarity}</span>
     </div>
     <div class="stat-row">
-      <span class="stat-label">GIH Win Rate <span class="stat-hint" data-hint="Games In Hand Win Rate — postotak pobjeda u partijama gdje si imao ovu kartu u ruci barem jednom. Glavna mjera kvalitete karte.">?</span></span>
+      <span class="stat-label">GIH Win Rate <span class="stat-hint" data-hint="Win rate in games where you had this card in hand at least once.">?</span></span>
       <span class="stat-value ${wrClass}">${d.gih_wr}%</span>
     </div>
     <div class="stat-row">
-      <span class="stat-label">Pick order (ALSA) <span class="stat-hint" data-hint="Average Last Seen At — prosječna pozicija u packetu kad karta zadnji put prođe dalje. Manji broj = uzima se ranije = visoko cijenjena.">?</span></span>
+      <span class="stat-label">Pick order (ALSA) <span class="stat-hint" data-hint="Average pick position when last seen in a pack. Lower = taken earlier = more valued.">?</span></span>
       <span class="stat-value">${d.alsa}</span>
     </div>
     <div class="stat-row">
-      <span class="stat-label">Play rate <span class="stat-hint" data-hint="Koliko često se karta stavi u deck kad se drafta. Visok postotak = gotovo uvijek igrana.">?</span></span>
+      <span class="stat-label">Play rate <span class="stat-hint" data-hint="How often the card makes it into the final deck when drafted.">?</span></span>
       <span class="stat-value">${d.gp_pct}%</span>
     </div>
     <div class="stat-row">
-      <span class="stat-label">Improves win rate by <span class="stat-hint" data-hint="IWD — za koliko postotnih poena raste win rate kad izvučeš ovu kartu, u odnosu na partije kad je nisi izvukao.">?</span></span>
+      <span class="stat-label">Improves win rate by <span class="stat-hint" data-hint="Win rate boost when you draw this card vs. when you don't.">?</span></span>
       <span class="stat-value ${iwdClass}">${iwd}</span>
     </div>
   `;
