@@ -130,18 +130,28 @@ function updateTimeline() {
 
   bars = bars.slice(0, 14);
 
-  // Pre-calculate compare bars so their values can inform the y scale
-  const compareMeta = state.compareColors.size > 0
-    ? DATA.metaEvolution.find((m, i) => i !== state.metaIndex) : null;
+  // ── Compare bars: when 2 colors selected, show each color's top identities ──
+  // color1 → solid bars (already in `bars`, filtered below)
+  // color2 → outlined bars positioned next to matching identities
   let compareBars = [];
-  if (compareMeta) {
-    compareBars = compareMeta.colors
-      .filter(d => [...state.compareColors].some(c => d.id.includes(c)))
-      .filter(d => bars.find(b => b.id === d.id))
-      .slice(0, 14);
+  if (state.compareColors.size === 2) {
+    const [c1, c2] = [...state.compareColors];
+    // Rebuild bars to show color1 identities only
+    bars = meta.colors.filter(d => d.id.includes(c1));
+    if (state.sortBy === 'count') bars.sort((a, b) => b.count - a.count);
+    bars = bars.slice(0, 12);
+
+    // compareBars = color2 identities that share an id with bars (same x slots)
+    // + color2-only identities appended to x domain
+    const bars2 = meta.colors.filter(d => d.id.includes(c2));
+    // Merge x domain: union of both id sets, deduplicated, limited to 14 total
+    const allIds = [...new Set([...bars.map(d => d.id), ...bars2.map(d => d.id)])].slice(0, 14);
+    // Pad bars with zero-count placeholders for ids only in bars2
+    bars = allIds.map(id => bars.find(b => b.id === id) || { id, count: 0, pct: 0 });
+    compareBars = allIds.map(id => bars2.find(b => b.id === id) || null).filter(Boolean);
   }
 
-  // Update scales — include compare bar values so nothing overflows
+  // Update scales — include both bar sets
   const allCounts = bars.map(d => d.count).concat(compareBars.map(d => d.count));
   TL.x.domain(bars.map(d => d.id));
   TL.y.domain([0, (d3.max(allCounts) || 10) * 1.12]);
@@ -167,11 +177,14 @@ function updateTimeline() {
   const rects = TL.svg.select('.bars-group')
     .selectAll('rect.bar').data(bars, d => d.id);
 
+  const isCompare = state.compareColors.size === 2;
+  const mainW  = isCompare ? bw * 0.48 : bw;
+
   // ENTER
   rects.enter().append('rect').attr('class', 'bar')
     .attr('x',      d => TL.x(d.id))
     .attr('y',      TL.y(0))
-    .attr('width',  TL.x.bandwidth())
+    .attr('width',  mainW)
     .attr('height', 0)
     .attr('fill',   d => colorOf(d.id))
     .attr('rx', 2)
@@ -197,10 +210,10 @@ function updateTimeline() {
   rects.transition().duration(TRANS)
     .attr('x',      d => TL.x(d.id))
     .attr('y',      d => TL.y(d.count))
-    .attr('width',  TL.x.bandwidth())
+    .attr('width',  mainW)
     .attr('height', d => TL.y(0) - TL.y(d.count))
     .attr('fill',   d => colorOf(d.id))
-    .attr('opacity', d => isHighlighted(d.id) ? 0.88 : 0.22);
+    .attr('opacity', d => (d.count === 0) ? 0 : (isHighlighted(d.id) ? 0.88 : 0.22));
 
   // EXIT
   rects.exit().transition().duration(TRANS)
@@ -211,32 +224,30 @@ function updateTimeline() {
   const crects = TL.svg.select('.compare-bars-group')
     .selectAll('rect.bar-compare').data(compareBars, d => d.id);
 
+  const bw = TL.x.bandwidth();
+  const tipFn = (evt, d) => {
+    const pct = meta.total > 0 ? (d.count / meta.total * 100).toFixed(1) : 0;
+    showTip(`<b>${identityLabel(d.id)}</b><br>${d.count.toLocaleString()} decks (${pct}%)`, evt);
+  };
+
   crects.enter().append('rect').attr('class', 'bar-compare')
-    .attr('x', d => (TL.x(d.id) || 0) + TL.x.bandwidth() * 0.55)
-    .attr('y', TL.y(0)).attr('width', TL.x.bandwidth() * 0.4)
+    .attr('x', d => (TL.x(d.id) || 0) + bw * 0.52)
+    .attr('y', TL.y(0)).attr('width', bw * 0.44)
     .attr('height', 0).attr('rx', 2)
-    .attr('fill', 'none')
-    .attr('stroke', d => colorOf(d.id)).attr('stroke-width', 2)
+    .attr('fill', d => colorOf(d.id)).attr('opacity', 0.55)
     .attr('cursor', 'pointer')
-    .on('mouseover', function(evt, d) {
-      const pct = compareMeta.total > 0 ? (d.count / compareMeta.total * 100).toFixed(1) : 0;
-      showTip(`<b>${identityLabel(d.id)}</b><br>${d.count} decks (${pct}%)`, evt);
-    })
-    .on('mouseout', hideTip)
+    .on('mouseover', tipFn).on('mousemove', tipFn).on('mouseout', hideTip)
     .transition().duration(TRANS)
     .attr('y', d => TL.y(d.count)).attr('height', d => TL.y(0) - TL.y(d.count));
 
   crects
-    .on('mouseover', function(evt, d) {
-      const pct = compareMeta.total > 0 ? (d.count / compareMeta.total * 100).toFixed(1) : 0;
-      showTip(`<b>${identityLabel(d.id)}</b><br>${d.count} decks (${pct}%)`, evt);
-    })
-    .on('mouseout', hideTip)
+    .on('mouseover', tipFn).on('mousemove', tipFn).on('mouseout', hideTip)
     .transition().duration(TRANS)
-    .attr('x', d => (TL.x(d.id) || 0) + TL.x.bandwidth() * 0.55)
+    .attr('x', d => (TL.x(d.id) || 0) + bw * 0.52)
     .attr('y', d => TL.y(d.count))
+    .attr('width', bw * 0.44)
     .attr('height', d => TL.y(0) - TL.y(d.count))
-    .attr('stroke', d => colorOf(d.id));
+    .attr('fill', d => colorOf(d.id)).attr('opacity', 0.55);
 
   crects.exit().transition().duration(TRANS)
     .attr('y', TL.y(0)).attr('height', 0).remove();
