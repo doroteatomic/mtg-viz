@@ -702,8 +702,12 @@ function syncChipStates() {
   document.querySelectorAll('#compare-filters .color-chip').forEach(el => {
     el.classList.toggle('compare-active', state.compareColors.has(el.dataset.color));
   });
+  // sync vertical legend
+  document.querySelectorAll('#color-legend .legend-chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.color === state.selectedColor);
+  });
   const clearBtn = document.getElementById('clear-compare-btn');
-  clearBtn.style.display = state.compareColors.size > 0 ? '' : 'none';
+  if (clearBtn) clearBtn.style.display = state.compareColors.size > 0 ? '' : 'none';
 }
 
 function updateAll() {
@@ -880,14 +884,24 @@ async function init() {
 
     document.querySelectorAll('.panel, .hero-section').forEach(p => revealObs.observe(p));
 
-    // ── Show header controls only after hero scrolls out of view ─
-    const header      = document.querySelector('.main-header');
+    // ── Show vertical legend after hero scrolls out of view ──────
+    const colorLegend = document.getElementById('color-legend');
     const heroSection = document.getElementById('hero-section');
-    if (header && heroSection) {
+    if (colorLegend && heroSection) {
       const heroVisObs = new IntersectionObserver((entries) => {
-        header.classList.toggle('controls-visible', !entries[0].isIntersecting);
+        colorLegend.classList.toggle('visible', !entries[0].isIntersecting);
       }, { threshold: 0.1 });
       heroVisObs.observe(heroSection);
+
+      // Wire legend chip clicks to the same filter logic
+      colorLegend.querySelectorAll('.legend-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const c = btn.dataset.color;
+          state.selectedColor = state.selectedColor === c ? null : c;
+          syncChipStates();
+          updateAll();
+        });
+      });
     }
 
   } catch (err) {

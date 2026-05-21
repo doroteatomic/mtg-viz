@@ -201,11 +201,11 @@ body::before {
 }
 
 /* Land art backgrounds */
-.color-chip.chip-W { background-image: url('img/plains.jpg');   }
-.color-chip.chip-U { background-image: url('img/island.jpg');   }
-.color-chip.chip-B { background-image: url('img/swamp.jpg');    }
-.color-chip.chip-R { background-image: url('img/mountain.jpg'); }
-.color-chip.chip-G { background-image: url('img/forest.jpg');   }
+.color-chip.chip-W { background-image: url('img/plains.png');   }
+.color-chip.chip-U { background-image: url('img/island.png');   }
+.color-chip.chip-B { background-image: url('img/swamp.png');    }
+.color-chip.chip-R { background-image: url('img/mountain.png'); }
+.color-chip.chip-G { background-image: url('img/forest.png');   }
 
 /* ── Control Elements ─────────────────────────────────────────── */
 .ctrl-btn {
@@ -682,6 +682,59 @@ body::before {
   display: block;
   transform: rotate(-8deg);
   filter: drop-shadow(0 4px 16px rgba(0,0,0,0.3));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VERTICAL COLOR LEGEND (fixed left sidebar)
+   ══════════════════════════════════════════════════════════════ */
+.color-legend {
+  position: fixed;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.color-legend.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.legend-chip {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2.5px solid rgba(255,255,255,0.25);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 0;
+  background: none;
+  flex-shrink: 0;
+}
+
+.legend-chip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.legend-chip:hover {
+  transform: scale(1.12);
+  border-color: rgba(245,197,24,0.7);
+}
+
+.legend-chip.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2.5px var(--accent), 0 4px 14px rgba(0,0,0,0.5);
+  transform: scale(1.12);
 }
 
 /* ══════════════════════════════════════════════════════════════
