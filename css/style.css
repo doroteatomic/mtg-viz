@@ -631,6 +631,56 @@ body::before {
 .card-panel-stats .stat-value.good { color: #7ddc9e; }
 .card-panel-stats .stat-value.bad  { color: #e07070; }
 
+/* ── Panel info button ────────────────────────────────────────── */
+.panel-info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-family: sans-serif;
+  cursor: help;
+  vertical-align: middle;
+  margin-left: 6px;
+  position: relative;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.panel-info-btn:hover {
+  background: rgba(245,197,24,0.2);
+  color: var(--accent);
+  border-color: rgba(245,197,24,0.4);
+}
+.panel-info-btn::after {
+  content: attr(data-info);
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  background: #1a2650;
+  border: 1.5px solid rgba(245,197,24,0.4);
+  color: #fff;
+  font-family: 'Goudy Mediaeval', serif;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  padding: 12px 16px;
+  width: 280px;
+  border-radius: 2px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 500;
+  white-space: normal;
+  text-align: left;
+  font-weight: 400;
+}
+.panel-info-btn:hover::after { opacity: 1; }
+
 .stat-hint {
   display: inline-flex;
   align-items: center;
