@@ -290,7 +290,7 @@ body::before {
   background: var(--bg);
   position: relative;
   z-index: 1;
-  padding: 36px 44px 60px;
+  padding: 36px 44px 60px 82px;
   gap: 40px;
 }
 
@@ -586,7 +586,7 @@ body::before {
   display: flex;
   align-items: center;
   gap: clamp(32px, 6vw, 88px);
-  padding: 40px;
+  padding: 40px 40px 40px 82px;
   position: relative;
 }
 
@@ -696,14 +696,6 @@ body::before {
   flex-direction: column;
   gap: 10px;
   z-index: 500;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-}
-
-.color-legend.visible {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .legend-chip {
