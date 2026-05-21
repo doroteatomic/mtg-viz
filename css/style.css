@@ -109,6 +109,14 @@ body::before {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.main-header.controls-visible .header-controls {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .filter-group {

@@ -880,6 +880,16 @@ async function init() {
 
     document.querySelectorAll('.panel, .hero-section').forEach(p => revealObs.observe(p));
 
+    // ── Show header controls only after hero scrolls out of view ─
+    const header      = document.querySelector('.main-header');
+    const heroSection = document.getElementById('hero-section');
+    if (header && heroSection) {
+      const heroVisObs = new IntersectionObserver((entries) => {
+        header.classList.toggle('controls-visible', !entries[0].isIntersecting);
+      }, { threshold: 0.1 });
+      heroVisObs.observe(heroSection);
+    }
+
   } catch (err) {
     document.body.innerHTML =
       `<div class="error">Failed to load data: ${err.message}<br><br>` +
