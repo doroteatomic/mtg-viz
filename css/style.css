@@ -696,6 +696,14 @@ body::before {
   flex-direction: column;
   gap: 10px;
   z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.color-legend.visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .legend-chip {

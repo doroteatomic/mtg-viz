@@ -884,8 +884,16 @@ async function init() {
 
     document.querySelectorAll('.panel, .hero-section').forEach(p => revealObs.observe(p));
 
-    // ── Wire vertical legend chip clicks to filter logic ─────────
+    // ── Show legend only after hero scrolls out of view ──────────
     const colorLegend = document.getElementById('color-legend');
+    const heroSection  = document.getElementById('hero-section');
+    if (colorLegend && heroSection) {
+      new IntersectionObserver((entries) => {
+        colorLegend.classList.toggle('visible', !entries[0].isIntersecting);
+      }, { threshold: 0.1 }).observe(heroSection);
+    }
+
+    // ── Wire vertical legend chip clicks to filter logic ─────────
     if (colorLegend) {
       colorLegend.querySelectorAll('.legend-chip').forEach(btn => {
         btn.addEventListener('click', () => {
