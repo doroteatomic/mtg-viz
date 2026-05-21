@@ -144,7 +144,11 @@ function identityLabel(id) {
 function isHighlighted(identity) {
   if (!state.selectedColor && state.compareColors.size === 0) return true;
   if (state.selectedColor && identity.includes(state.selectedColor)) return true;
-  if ([...state.compareColors].some(c => identity.includes(c))) return true;
+  // 2 colors selected → highlight only identities that contain BOTH
+  if (state.compareColors.size >= 2)
+    return [...state.compareColors].every(c => identity.includes(c));
+  if (state.compareColors.size === 1)
+    return identity.includes([...state.compareColors][0]);
   return false;
 }
 
@@ -198,32 +202,15 @@ function updateTimeline() {
 
   bars = bars.slice(0, 14);
 
-  // ── Compare bars: when 2 colors selected, show each color's top identities ──
-  // color1 → solid bars (already in `bars`, filtered below)
-  // color2 → outlined bars positioned next to matching identities
-  let compareBars = [];
-  if (state.compareColors.size === 2) {
-    const [c1, c2] = [...state.compareColors];
-    // Rebuild bars to show color1 identities only
-    bars = meta.colors.filter(d => d.id.includes(c1));
-    if (state.sortBy === 'count') bars.sort((a, b) => b.count - a.count);
-    bars = bars.slice(0, 12);
-
-    // compareBars = color2 identities that share an id with bars (same x slots)
-    // + color2-only identities appended to x domain
-    const bars2 = meta.colors.filter(d => d.id.includes(c2));
-    // Merge x domain: union of both id sets, deduplicated, limited to 14 total
-    const allIds = [...new Set([...bars.map(d => d.id), ...bars2.map(d => d.id)])].slice(0, 14);
-    // Keep only real entries — no zero placeholders
-    bars = allIds.map(id => bars.find(b => b.id === id)).filter(Boolean);
-    compareBars = allIds.map(id => bars2.find(b => b.id === id)).filter(Boolean);
+  // When 2 colors selected → filter to identities containing BOTH colors
+  if (state.compareColors.size >= 2) {
+    const colors = [...state.compareColors];
+    bars = bars.filter(d => colors.every(c => d.id.includes(c)));
   }
 
-  // Update scales — include both bar sets
-  const allCounts = bars.map(d => d.count).concat(compareBars.map(d => d.count));
   TL.x.domain(bars.map(d => d.id));
-  TL.y.domain([0, (d3.max(allCounts) || 10) * 1.12]);
-  const bw = TL.x.bandwidth(); // declared here so it's available for both bar sections
+  TL.y.domain([0, (d3.max(bars, d => d.count) || 10) * 1.12]);
+  const bw = TL.x.bandwidth();
 
   const xAxis = d3.axisBottom(TL.x).tickFormat(d => identityLabel(d));
   const yAxis = d3.axisLeft(TL.y).ticks(5).tickFormat(d3.format(','));
@@ -246,16 +233,13 @@ function updateTimeline() {
   const rects = TL.svg.select('.bars-group')
     .selectAll('rect.bar').data(bars, d => d.id);
 
-  const isCompare = state.compareColors.size === 2;
-  // compareIds = set of ids that have a compare bar partner
-  const compareIds = new Set(compareBars.map(d => d.id));
-  const mainW = d => (isCompare && compareIds.has(d.id)) ? bw * 0.48 : bw;
+  const mainW = bw;
 
   // ENTER
   rects.enter().append('rect').attr('class', 'bar')
     .attr('x',      d => TL.x(d.id))
     .attr('y',      TL.y(0))
-    .attr('width',  d => mainW(d))
+    .attr('width',  mainW)
     .attr('height', 0)
     .attr('fill',   d => colorOf(d.id))
     .attr('rx', 2)
@@ -281,51 +265,17 @@ function updateTimeline() {
   rects.transition().duration(TRANS)
     .attr('x',      d => TL.x(d.id))
     .attr('y',      d => TL.y(d.count))
-    .attr('width',  d => mainW(d))
+    .attr('width',  mainW)
     .attr('height', d => TL.y(0) - TL.y(d.count))
     .attr('fill',   d => colorOf(d.id))
-    .attr('opacity', d => isHighlighted(d.id) ? 0.88 : 0.22);
+    .attr('opacity', 0.88);
 
   // EXIT
   rects.exit().transition().duration(TRANS)
     .attr('y', TL.y(0)).attr('height', 0).attr('opacity', 0).remove();
 
-  // ── Compare overlay bars ───────────────────────────────────
-
-  const crects = TL.svg.select('.compare-bars-group')
-    .selectAll('rect.bar-compare').data(compareBars, d => d.id);
-
-  const tipFn = (evt, d) => {
-    const pct = meta.total > 0 ? (d.count / meta.total * 100).toFixed(1) : 0;
-    showTip(`<b>${identityLabel(d.id)}</b><br>${d.count.toLocaleString()} decks (${pct}%)`, evt);
-  };
-
-  // mainIds = ids that have a main bar — compare bar aligns right if pair, full width if solo
-  const mainIds = new Set(bars.map(d => d.id));
-  const cmpX = d => mainIds.has(d.id) ? (TL.x(d.id) || 0) + bw * 0.52 : (TL.x(d.id) || 0);
-  const cmpW = d => mainIds.has(d.id) ? bw * 0.44 : bw;
-
-  crects.enter().append('rect').attr('class', 'bar-compare')
-    .attr('x', d => cmpX(d))
-    .attr('y', TL.y(0)).attr('width', d => cmpW(d))
-    .attr('height', 0).attr('rx', 2)
-    .attr('fill', d => colorOf(d.id)).attr('opacity', 0.55)
-    .attr('cursor', 'pointer')
-    .on('mouseover', tipFn).on('mousemove', tipFn).on('mouseout', hideTip)
-    .transition().duration(TRANS)
-    .attr('y', d => TL.y(d.count)).attr('height', d => TL.y(0) - TL.y(d.count));
-
-  crects
-    .on('mouseover', tipFn).on('mousemove', tipFn).on('mouseout', hideTip)
-    .transition().duration(TRANS)
-    .attr('x', d => cmpX(d))
-    .attr('y', d => TL.y(d.count))
-    .attr('width', d => cmpW(d))
-    .attr('height', d => TL.y(0) - TL.y(d.count))
-    .attr('fill', d => colorOf(d.id)).attr('opacity', 0.55);
-
-  crects.exit().transition().duration(TRANS)
-    .attr('y', TL.y(0)).attr('height', 0).remove();
+  // Clear any leftover compare bars from previous renders
+  TL.svg.select('.compare-bars-group').selectAll('rect.bar-compare').remove();
 
   updateMetaDots();
 }
