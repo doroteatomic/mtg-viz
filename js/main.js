@@ -703,9 +703,13 @@ function syncChipStates() {
     el.classList.toggle('compare-active', state.compareColors.has(el.dataset.color));
   });
   // sync vertical legend
+  const anySelected = state.selectedColor || state.compareColors.size > 0;
   document.querySelectorAll('#color-legend .legend-chip').forEach(el => {
-    el.classList.toggle('active', el.dataset.color === state.selectedColor);
+    el.classList.toggle('active',          el.dataset.color === state.selectedColor);
+    el.classList.toggle('compare-active',  state.compareColors.has(el.dataset.color));
   });
+  const legendClear = document.getElementById('legend-clear');
+  if (legendClear) legendClear.style.display = anySelected ? 'flex' : 'none';
   const clearBtn = document.getElementById('clear-compare-btn');
   if (clearBtn) clearBtn.style.display = state.compareColors.size > 0 ? '' : 'none';
 }
@@ -893,16 +897,50 @@ async function init() {
       }, { threshold: 0.1 }).observe(heroSection);
     }
 
-    // ── Wire vertical legend chip clicks to filter logic ─────────
+    // ── Wire vertical legend: 1 click = filter, 2 = compare ─────
     if (colorLegend) {
       colorLegend.querySelectorAll('.legend-chip').forEach(btn => {
         btn.addEventListener('click', () => {
           const c = btn.dataset.color;
-          state.selectedColor = state.selectedColor === c ? null : c;
+
+          if (state.selectedColor === c) {
+            // deselect single
+            state.selectedColor = null;
+          } else if (state.compareColors.has(c)) {
+            // remove from compare; if 1 left, move back to selectedColor
+            state.compareColors.delete(c);
+            if (state.compareColors.size === 1) {
+              state.selectedColor = [...state.compareColors][0];
+              state.compareColors.clear();
+            }
+          } else if (state.selectedColor) {
+            // second pick → enter compare mode
+            state.compareColors.add(state.selectedColor);
+            state.compareColors.add(c);
+            state.selectedColor = null;
+          } else if (state.compareColors.size < 2) {
+            state.compareColors.add(c);
+          } else {
+            // already 2 in compare → swap oldest
+            state.compareColors.delete([...state.compareColors][0]);
+            state.compareColors.add(c);
+          }
+
           syncChipStates();
           updateAll();
         });
       });
+
+      // X button — clear everything
+      const legendClear = document.getElementById('legend-clear');
+      if (legendClear) {
+        legendClear.addEventListener('click', () => {
+          state.selectedColor = null;
+          state.compareColors.clear();
+          syncChipStates();
+          updateAll();
+        });
+      }
     }
 
   } catch (err) {

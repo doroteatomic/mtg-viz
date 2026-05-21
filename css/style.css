@@ -737,6 +737,36 @@ body::before {
   transform: scale(1.12);
 }
 
+.legend-chip.compare-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(245,197,24,0.5);
+  outline: 2px dashed rgba(245,197,24,0.65);
+  outline-offset: 2px;
+  transform: scale(1.12);
+}
+
+.legend-clear {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.55);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.legend-clear:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(245,197,24,0.1);
+}
+
 /* ══════════════════════════════════════════════════════════════
    HERO SECTION  (MTG card intro, between landing and charts)
    ══════════════════════════════════════════════════════════════ */
