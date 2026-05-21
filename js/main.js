@@ -60,6 +60,74 @@ function showTip(html, evt) {
 }
 function hideTip() { tip.style('opacity', 0); }
 
+// ── Card panel (scatter click) ─────────────────────────────────
+const cardPanel    = document.getElementById('card-panel');
+const cardBackdrop = document.getElementById('card-panel-backdrop');
+const cardImg      = document.getElementById('card-panel-img');
+const cardLoader   = document.getElementById('card-panel-loader');
+const cardStats    = document.getElementById('card-panel-stats');
+
+function openCardPanel(d) {
+  // Stats HTML
+  const iwd = d.iwd >= 0 ? `+${d.iwd}pp` : `${d.iwd}pp`;
+  const iwdClass = d.iwd >= 0 ? 'good' : 'bad';
+  const wrClass  = d.gih_wr >= 55 ? 'good' : d.gih_wr < 50 ? 'bad' : '';
+  cardStats.innerHTML = `
+    <div class="stat-name">${d.name}</div>
+    <div class="stat-row">
+      <span class="stat-label">Rarity</span>
+      <span class="stat-value">${RARITY_LABEL[d.rarity] || d.rarity}</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">GIH Win Rate</span>
+      <span class="stat-value ${wrClass}">${d.gih_wr}%</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Pick order (ALSA)</span>
+      <span class="stat-value">${d.alsa}</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Play rate</span>
+      <span class="stat-value">${d.gp_pct}%</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Improves win rate by</span>
+      <span class="stat-value ${iwdClass}">${iwd}</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Seen in drafts</span>
+      <span class="stat-value">${d.num_seen.toLocaleString()}</span>
+    </div>`;
+
+  // Load card image from Scryfall
+  cardLoader.classList.remove('hidden');
+  cardImg.style.opacity = 0;
+  cardImg.src = '';
+  const url = `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(d.name)}&format=image&version=normal`;
+  cardImg.onload = () => {
+    cardLoader.classList.add('hidden');
+    cardImg.style.opacity = 1;
+  };
+  cardImg.onerror = () => {
+    cardLoader.textContent = 'Image not found';
+  };
+  cardImg.src = url;
+
+  cardPanel.classList.add('open');
+  cardBackdrop.classList.add('open');
+  cardPanel.setAttribute('aria-hidden', 'false');
+}
+
+function closeCardPanel() {
+  cardPanel.classList.remove('open');
+  cardBackdrop.classList.remove('open');
+  cardPanel.setAttribute('aria-hidden', 'true');
+}
+
+document.getElementById('card-panel-close').addEventListener('click', closeCardPanel);
+cardBackdrop.addEventListener('click', closeCardPanel);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCardPanel(); });
+
 // ── Color helpers ──────────────────────────────────────────────
 function colorOf(identity) {
   if (!identity || identity === 'C') return COLOR_HEX.C;
@@ -538,6 +606,12 @@ function updateScatter() {
         .attr('stroke', 'rgba(0,0,0,0.4)').attr('stroke-width', 0.5);
       hideTip();
     })
+    .on('click', function(evt, d) {
+      evt.stopPropagation();
+      hideTip();
+      openCardPanel(d);
+    })
+    .attr('cursor', 'pointer')
     .transition().duration(TRANS)
     .attr('cy', d => SC.y(d[yKey]))
     .attr('r',  d => SC.size(d.num_gp));

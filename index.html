@@ -166,6 +166,17 @@
 
   <div id="tooltip" class="tooltip"></div>
 
+  <!-- ── Card detail panel (scatter click) ──────────────────── -->
+  <div id="card-panel" class="card-panel" aria-hidden="true">
+    <button class="card-panel-close" id="card-panel-close" aria-label="Close">✕</button>
+    <div class="card-panel-img-wrap">
+      <img id="card-panel-img" src="" alt="" draggable="false">
+      <div class="card-panel-img-loader" id="card-panel-loader">Loading…</div>
+    </div>
+    <div class="card-panel-stats" id="card-panel-stats"></div>
+  </div>
+  <div id="card-panel-backdrop" class="card-panel-backdrop"></div>
+
   <script src="js/main.js"></script>
 
   <script>
