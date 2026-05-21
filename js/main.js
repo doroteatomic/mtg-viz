@@ -96,19 +96,33 @@ function openCardPanel(d) {
     </div>
   `;
 
-  // Load card image from Scryfall
+  // Fetch card data from Scryfall (image + price)
   cardLoader.classList.remove('hidden');
+  cardLoader.textContent = 'Loading…';
   cardImg.style.opacity = 0;
   cardImg.src = '';
-  const url = `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(d.name)}&format=image&version=normal`;
-  cardImg.onload = () => {
-    cardLoader.classList.add('hidden');
-    cardImg.style.opacity = 1;
-  };
-  cardImg.onerror = () => {
-    cardLoader.textContent = 'Image not found';
-  };
-  cardImg.src = url;
+
+  fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(d.name)}`)
+    .then(r => r.json())
+    .then(card => {
+      // Image
+      const imgUrl = card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal;
+      if (imgUrl) {
+        cardImg.onload = () => { cardLoader.classList.add('hidden'); cardImg.style.opacity = 1; };
+        cardImg.src = imgUrl;
+      } else {
+        cardLoader.textContent = 'Image not found';
+      }
+      // Price — append to stats
+      const usd = card.prices?.usd;
+      const foil = card.prices?.usd_foil;
+      const priceStr = usd ? `$${usd}` + (foil ? ` · foil $${foil}` : '') : 'N/A';
+      const priceRow = document.createElement('div');
+      priceRow.className = 'stat-row';
+      priceRow.innerHTML = `<span class="stat-label">Price (TCGPlayer)</span><span class="stat-value">${priceStr}</span>`;
+      cardStats.appendChild(priceRow);
+    })
+    .catch(() => { cardLoader.textContent = 'Failed to load'; });
 
   cardPanel.classList.add('open');
   cardBackdrop.classList.add('open');
