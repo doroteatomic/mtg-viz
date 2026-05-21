@@ -340,7 +340,7 @@ body::before {
 }
 
 .panel-header h2 {
-  font-family: 'Bebas Neue', 'Goudy Mediaeval', serif;
+  font-family: 'Goudy Mediaeval', serif;
   font-size: 1.1rem;
   font-weight: 400;
   color: var(--accent);
