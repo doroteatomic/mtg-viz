@@ -214,9 +214,9 @@ function updateTimeline() {
     const bars2 = meta.colors.filter(d => d.id.includes(c2));
     // Merge x domain: union of both id sets, deduplicated, limited to 14 total
     const allIds = [...new Set([...bars.map(d => d.id), ...bars2.map(d => d.id)])].slice(0, 14);
-    // Pad bars with zero-count placeholders for ids only in bars2
-    bars = allIds.map(id => bars.find(b => b.id === id) || { id, count: 0, pct: 0 });
-    compareBars = allIds.map(id => bars2.find(b => b.id === id) || null).filter(Boolean);
+    // Keep only real entries — no zero placeholders
+    bars = allIds.map(id => bars.find(b => b.id === id)).filter(Boolean);
+    compareBars = allIds.map(id => bars2.find(b => b.id === id)).filter(Boolean);
   }
 
   // Update scales — include both bar sets
@@ -247,13 +247,15 @@ function updateTimeline() {
     .selectAll('rect.bar').data(bars, d => d.id);
 
   const isCompare = state.compareColors.size === 2;
-  const mainW  = isCompare ? bw * 0.48 : bw;
+  // compareIds = set of ids that have a compare bar partner
+  const compareIds = new Set(compareBars.map(d => d.id));
+  const mainW = d => (isCompare && compareIds.has(d.id)) ? bw * 0.48 : bw;
 
   // ENTER
   rects.enter().append('rect').attr('class', 'bar')
     .attr('x',      d => TL.x(d.id))
     .attr('y',      TL.y(0))
-    .attr('width',  mainW)
+    .attr('width',  d => mainW(d))
     .attr('height', 0)
     .attr('fill',   d => colorOf(d.id))
     .attr('rx', 2)
@@ -279,10 +281,10 @@ function updateTimeline() {
   rects.transition().duration(TRANS)
     .attr('x',      d => TL.x(d.id))
     .attr('y',      d => TL.y(d.count))
-    .attr('width',  mainW)
+    .attr('width',  d => mainW(d))
     .attr('height', d => TL.y(0) - TL.y(d.count))
     .attr('fill',   d => colorOf(d.id))
-    .attr('opacity', d => (d.count === 0) ? 0 : (isHighlighted(d.id) ? 0.88 : 0.22));
+    .attr('opacity', d => isHighlighted(d.id) ? 0.88 : 0.22);
 
   // EXIT
   rects.exit().transition().duration(TRANS)
@@ -298,9 +300,14 @@ function updateTimeline() {
     showTip(`<b>${identityLabel(d.id)}</b><br>${d.count.toLocaleString()} decks (${pct}%)`, evt);
   };
 
+  // mainIds = ids that have a main bar — compare bar aligns right if pair, full width if solo
+  const mainIds = new Set(bars.map(d => d.id));
+  const cmpX = d => mainIds.has(d.id) ? (TL.x(d.id) || 0) + bw * 0.52 : (TL.x(d.id) || 0);
+  const cmpW = d => mainIds.has(d.id) ? bw * 0.44 : bw;
+
   crects.enter().append('rect').attr('class', 'bar-compare')
-    .attr('x', d => (TL.x(d.id) || 0) + bw * 0.52)
-    .attr('y', TL.y(0)).attr('width', bw * 0.44)
+    .attr('x', d => cmpX(d))
+    .attr('y', TL.y(0)).attr('width', d => cmpW(d))
     .attr('height', 0).attr('rx', 2)
     .attr('fill', d => colorOf(d.id)).attr('opacity', 0.55)
     .attr('cursor', 'pointer')
@@ -311,9 +318,9 @@ function updateTimeline() {
   crects
     .on('mouseover', tipFn).on('mousemove', tipFn).on('mouseout', hideTip)
     .transition().duration(TRANS)
-    .attr('x', d => (TL.x(d.id) || 0) + bw * 0.52)
+    .attr('x', d => cmpX(d))
     .attr('y', d => TL.y(d.count))
-    .attr('width', bw * 0.44)
+    .attr('width', d => cmpW(d))
     .attr('height', d => TL.y(0) - TL.y(d.count))
     .attr('fill', d => colorOf(d.id)).attr('opacity', 0.55);
 
