@@ -72,6 +72,8 @@ function openCardPanel(d) {
   const iwd = d.iwd >= 0 ? `+${d.iwd}pp` : `${d.iwd}pp`;
   const iwdClass = d.iwd >= 0 ? 'good' : 'bad';
   const wrClass  = d.gih_wr >= 55 ? 'good' : d.gih_wr < 50 ? 'bad' : '';
+  const reliabilityClass = d.num_seen > 10000 ? 'good' : d.num_seen > 3000 ? '' : 'bad';
+  const reliabilityLabel = d.num_seen > 10000 ? '★★★ High' : d.num_seen > 3000 ? '★★☆ Medium' : '★☆☆ Low';
   cardStats.innerHTML = `
     <div class="stat-name">${d.name}</div>
     <div class="stat-row">
@@ -95,8 +97,8 @@ function openCardPanel(d) {
       <span class="stat-value ${iwdClass}">${iwd}</span>
     </div>
     <div class="stat-row">
-      <span class="stat-label">Seen in drafts</span>
-      <span class="stat-value">${d.num_seen.toLocaleString()}</span>
+      <span class="stat-label">Data reliability</span>
+      <span class="stat-value ${reliabilityClass}">${reliabilityLabel}</span>
     </div>`;
 
   // Load card image from Scryfall
