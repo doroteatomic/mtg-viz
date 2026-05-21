@@ -362,13 +362,16 @@ function updateChord() {
   gAll.select('.chord-arc')
     .on('mouseover', function(evt, d) {
       const c = colors[d.index];
-      showTip(`<b>${COLOR_NAMES[c]}</b><br>${d.value.toLocaleString()} total appearances`, evt);
+      const deckCount = DATA.colorMatrix.matrix[d.index][d.index];
+      showTip(`<b>${COLOR_NAMES[c]}</b><br>${deckCount.toLocaleString()} decks contain this color`, evt);
       CH.g.selectAll('.chord-ribbon').transition().duration(150)
         .attr('opacity', r =>
           r.source.index === d.index || r.target.index === d.index ? 0.85 : 0.07);
     })
-    .on('mousemove', (evt, d) =>
-      showTip(`<b>${COLOR_NAMES[colors[d.index]]}</b><br>${d.value.toLocaleString()} deck appearances`, evt))
+    .on('mousemove', (evt, d) => {
+      const deckCount = DATA.colorMatrix.matrix[d.index][d.index];
+      showTip(`<b>${COLOR_NAMES[colors[d.index]]}</b><br>${deckCount.toLocaleString()} decks contain this color`, evt);
+    })
     .on('mouseout', function() {
       hideTip();
       CH.g.selectAll('.chord-ribbon').transition().duration(300).attr('opacity', 0.65);
@@ -405,19 +408,23 @@ function updateChord() {
   ribbons.enter().append('path').attr('class', 'chord-ribbon')
     .attr('opacity', 0)
     .on('mouseover', function(evt, d) {
-      const s = colors[d.source.index], t = colors[d.target.index];
+      const si = d.source.index, ti = d.target.index;
+      const s = colors[si], t = colors[ti];
       d3.select(this).transition().duration(100).attr('opacity', 0.9);
+      const count = DATA.colorMatrix.matrix[si][ti];
       const label = s === t
-        ? `<b>${COLOR_NAMES[s]}</b> (mono-color)`
-        : `<b>${COLOR_NAMES[s]} + ${COLOR_NAMES[t]}</b>`;
-      showTip(`${label}<br>${d.source.value.toLocaleString()} decks`, evt);
+        ? `<b>${COLOR_NAMES[s]}</b> mono-color decks`
+        : `<b>${COLOR_NAMES[s]} + ${COLOR_NAMES[t]}</b> decks`;
+      showTip(`${label}<br>${count.toLocaleString()} decks`, evt);
     })
     .on('mousemove', (evt, d) => {
-      const s = colors[d.source.index], t = colors[d.target.index];
+      const si = d.source.index, ti = d.target.index;
+      const s = colors[si], t = colors[ti];
+      const count = DATA.colorMatrix.matrix[si][ti];
       const label = s === t
-        ? `<b>${COLOR_NAMES[s]}</b> (mono-color)`
-        : `<b>${COLOR_NAMES[s]} + ${COLOR_NAMES[t]}</b>`;
-      showTip(`${label}<br>${d.source.value.toLocaleString()} decks`, evt);
+        ? `<b>${COLOR_NAMES[s]}</b> mono-color decks`
+        : `<b>${COLOR_NAMES[s]} + ${COLOR_NAMES[t]}</b> decks`;
+      showTip(`${label}<br>${count.toLocaleString()} decks`, evt);
     })
     .on('mouseout', function() {
       d3.select(this).transition().duration(200).attr('opacity', 0.65); hideTip();
