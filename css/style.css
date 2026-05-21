@@ -668,7 +668,7 @@ body::before {
    HERO SECTION  (MTG card intro, between landing and charts)
    ══════════════════════════════════════════════════════════════ */
 .hero-section {
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;

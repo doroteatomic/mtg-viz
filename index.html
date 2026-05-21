@@ -48,27 +48,17 @@
 
   </div><!-- /landing -->
 
-  <header class="main-header">
-    <div class="header-controls">
-      <div class="filter-group">
-        <span class="filter-label">Filter color:</span>
-        <div id="color-filters"></div>
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Compare:</span>
-        <div id="compare-filters"></div>
-        <button id="clear-compare-btn" class="ctrl-btn" style="display:none">&#10005; Clear</button>
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Sort:</span>
-        <select id="sort-select" class="ctrl-select">
-          <option value="count">By frequency</option>
-          <option value="color">By color count</option>
-          <option value="alpha">Alphabetical</option>
-        </select>
-      </div>
-    </div>
-  </header>
+  <!-- controls kept in DOM (hidden) so JS doesn't break -->
+  <div style="display:none">
+    <div id="color-filters"></div>
+    <div id="compare-filters"></div>
+    <button id="clear-compare-btn"></button>
+    <select id="sort-select">
+      <option value="count">By frequency</option>
+      <option value="color">By color count</option>
+      <option value="alpha">Alphabetical</option>
+    </select>
+  </div>
 
   <!-- ── Hero: MTG card intro ──────────────────────────────────── -->
   <section class="hero-section" id="hero-section">
