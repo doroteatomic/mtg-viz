@@ -130,9 +130,21 @@ function updateTimeline() {
 
   bars = bars.slice(0, 14);
 
-  // Update scales
+  // Pre-calculate compare bars so their values can inform the y scale
+  const compareMeta = state.compareColors.size > 0
+    ? DATA.metaEvolution.find((m, i) => i !== state.metaIndex) : null;
+  let compareBars = [];
+  if (compareMeta) {
+    compareBars = compareMeta.colors
+      .filter(d => [...state.compareColors].some(c => d.id.includes(c)))
+      .filter(d => bars.find(b => b.id === d.id))
+      .slice(0, 14);
+  }
+
+  // Update scales — include compare bar values so nothing overflows
+  const allCounts = bars.map(d => d.count).concat(compareBars.map(d => d.count));
   TL.x.domain(bars.map(d => d.id));
-  TL.y.domain([0, d3.max(bars, d => d.count) * 1.12 || 10]);
+  TL.y.domain([0, (d3.max(allCounts) || 10) * 1.12]);
 
   const xAxis = d3.axisBottom(TL.x).tickFormat(d => identityLabel(d));
   const yAxis = d3.axisLeft(TL.y).ticks(5).tickFormat(d3.format(','));
@@ -195,21 +207,6 @@ function updateTimeline() {
     .attr('y', TL.y(0)).attr('height', 0).attr('opacity', 0).remove();
 
   // ── Compare overlay bars ───────────────────────────────────
-  const cIdx = DATA.metaEvolution.findIndex(
-    (m, i) => i !== state.metaIndex && state.compareColors.size > 0 &&
-    m.colors.some(c => [...state.compareColors].some(sc => c.id.includes(sc)))
-  );
-  // Find the "other" meta to compare against
-  const compareMeta = state.compareColors.size > 0
-    ? DATA.metaEvolution.find((m, i) => i !== state.metaIndex) : null;
-
-  let compareBars = [];
-  if (compareMeta && state.compareColors.size > 0) {
-    compareBars = compareMeta.colors.filter(d =>
-      [...state.compareColors].some(c => d.id.includes(c))).slice(0, 14);
-    // Only show for ids that exist in current bars
-    compareBars = compareBars.filter(d => bars.find(b => b.id === d.id));
-  }
 
   const crects = TL.svg.select('.compare-bars-group')
     .selectAll('rect.bar-compare').data(compareBars, d => d.id);
@@ -220,10 +217,22 @@ function updateTimeline() {
     .attr('height', 0).attr('rx', 2)
     .attr('fill', 'none')
     .attr('stroke', d => colorOf(d.id)).attr('stroke-width', 2)
+    .attr('cursor', 'pointer')
+    .on('mouseover', function(evt, d) {
+      const pct = compareMeta.total > 0 ? (d.count / compareMeta.total * 100).toFixed(1) : 0;
+      showTip(`<b>${identityLabel(d.id)}</b><br>${d.count} decks (${pct}%)`, evt);
+    })
+    .on('mouseout', hideTip)
     .transition().duration(TRANS)
     .attr('y', d => TL.y(d.count)).attr('height', d => TL.y(0) - TL.y(d.count));
 
-  crects.transition().duration(TRANS)
+  crects
+    .on('mouseover', function(evt, d) {
+      const pct = compareMeta.total > 0 ? (d.count / compareMeta.total * 100).toFixed(1) : 0;
+      showTip(`<b>${identityLabel(d.id)}</b><br>${d.count} decks (${pct}%)`, evt);
+    })
+    .on('mouseout', hideTip)
+    .transition().duration(TRANS)
     .attr('x', d => (TL.x(d.id) || 0) + TL.x.bandwidth() * 0.55)
     .attr('y', d => TL.y(d.count))
     .attr('height', d => TL.y(0) - TL.y(d.count))
