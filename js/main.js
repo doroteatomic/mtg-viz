@@ -223,6 +223,7 @@ function updateTimeline() {
   const allCounts = bars.map(d => d.count).concat(compareBars.map(d => d.count));
   TL.x.domain(bars.map(d => d.id));
   TL.y.domain([0, (d3.max(allCounts) || 10) * 1.12]);
+  const bw = TL.x.bandwidth(); // declared here so it's available for both bar sections
 
   const xAxis = d3.axisBottom(TL.x).tickFormat(d => identityLabel(d));
   const yAxis = d3.axisLeft(TL.y).ticks(5).tickFormat(d3.format(','));
@@ -292,7 +293,6 @@ function updateTimeline() {
   const crects = TL.svg.select('.compare-bars-group')
     .selectAll('rect.bar-compare').data(compareBars, d => d.id);
 
-  const bw = TL.x.bandwidth();
   const tipFn = (evt, d) => {
     const pct = meta.total > 0 ? (d.count / meta.total * 100).toFixed(1) : 0;
     showTip(`<b>${identityLabel(d.id)}</b><br>${d.count.toLocaleString()} decks (${pct}%)`, evt);
