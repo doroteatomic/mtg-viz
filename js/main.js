@@ -147,9 +147,12 @@ function colorOf(identity) {
 
 function identityLabel(id) {
   if (!id) return '';
-  if (id === 'C') return 'C';
+  if (id.length === 1) return COLOR_NAMES[id] || id;
   if (id === 'WUBRG') return '5-Color';
-  return id;   // show raw color letters: WUB, RG, etc.
+  // 4-color: no good name exists, show letters
+  if (id.length === 4) return id;
+  // 2 and 3-color: use guild/shard names
+  return IDENTITY_NAMES[id] || id;
 }
 
 function isHighlighted(identity) {
