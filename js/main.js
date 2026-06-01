@@ -147,8 +147,9 @@ function colorOf(identity) {
 
 function identityLabel(id) {
   if (!id) return '';
-  if (id.length === 1) return COLOR_NAMES[id] || id;
-  return IDENTITY_NAMES[id] || toLandId(id);  // fallback to land abbr if no name
+  if (id === 'C') return 'C';
+  if (id === 'WUBRG') return '5-Color';
+  return id;   // show raw color letters: WUB, RG, etc.
 }
 
 function isHighlighted(identity) {
